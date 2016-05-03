@@ -2,7 +2,6 @@
 
 var pathFn = require('path');
 var fs = require('hexo-fs');
-var moment = require('moment');
 var spawn = require('hexo-util/lib/spawn');
 
 
@@ -43,8 +42,8 @@ Date.prototype.pattern=function(fmt) {
 
 var config = {
     
-    url:'git@git.coding.net:Rainboy/test.git',
-    branch:'master',
+    url:'git@git.coding.net:Rainboy/NOIP_Rainboy.git',
+    branch:'pages',
     message: function(){ //返回当前时间
         var date = new Date();
         return 'update:'+date.pattern("yyyy-MM-dd hh:mm:ss");
@@ -55,8 +54,8 @@ var config = {
 //module.exports=
 var test =function(args){
     var base = process.cwd();
-    var deployDir = base +path.sep+'.deploy_git';
-    var publicDir = base +path.sep+'_book';
+    var deployDir = base +pathFn.sep+'.deploy_git';
+    var publicDir = base +pathFn.sep+'_book';
     var verbose = true;
 
   function git() {
@@ -74,83 +73,39 @@ var test =function(args){
   }
 
     function push(repo) {
-        /*
         return git('add', '-A').then(function() {
-            return git('commit', '-m', repo.message());
-        }).then(function() {
-            return git('push', '-u', repo.url, 'HEAD:' + repo.branch, '--force');
-        });
-        */
-        return Promise.all([1]).then(function(){
-                return git('add','-A');
-        }).then(function() {
-            return git('commit', '-m', repo.message());
-        }).then(function() {
-            return git('push', '-u', repo.url, 'HEAD:' + repo.branch, '--force');
-        });
-  
-    }
-
-
-    var fsMkdir = function(dir){
-        
-        return new Promise(function(resolve,reject){
-            fs.mkdirSync(dir);
-            resolve(true);
-        });
-
-    }
-    var fsExit = function(flodername){
-
-        return new Promise(function(resolve,reject){
-            fs.stat(flodername,function(err,stat){
-                if(err == null){
-                    if(stat.isDirectory()){
-                        resolve(true);
-                    } 
-                    else if(stat.isFile()){
-                        resolve(false);
-                    }
-                    else {
-
-                        resolve(false);
-                    }
-
-                }
-                else if(err.code == 'ENOENT'){
-                    resolve(false);
-                }
-                else {
-                    resolve(false);
-                }
+            return git('commit', '-m', repo.message()).catch(function(){
+                //do noting
             });
-
+        }).then(function() {
+            return git('push', '-u', repo.url, 'HEAD:' + repo.branch, '--force');
         });
-
-
     }
+
 
     var setup = function(){
         return fs.writeFile(pathFn.join(deployDir,'placeholder'),'').then(function(){
-        return git('add','-A');
-        
-        }).then(function())
-    
+            return git('init');
+        }).then(function(){
+            return git('add','-A');
+        }).then(function(){
+            return git('commit','-m','First commit');
+        });
     }
+
     /* 开始返回处理 */
-    return fsExit(deployDir).then( function(exits){
-        if(exits) return;
+    return fs.exists(deployDir).then( function(exist){
+        if(exist) return;
         else {
             console.log('建立 .deploy git 目录');
-            setup();
-            return ;
+            return setup();
         }
     }).then(function(){
             console.log('清空 .deploy_git 目录');
-            return hfs.emptyDir(deployDir);
+            return fs.emptyDir(deployDir);
     }).then(function(){
             console.log('从 _book 目录复制文件到 .deploy_git 目录');
-            return hfs.copyDir(publicDir,deployDir);
+            return fs.copyDir(publicDir,deployDir);
     }).then(function(){
             console.log('开始 git push ');
           return push(config);
