@@ -1,9 +1,9 @@
-var spawn = require('cross-spawn');
-var Promise = require('bluebird');
-var fs = require('fs');
-var path = require('path');
-var hfs = require('hexo-fs');
+'use strict';
 
+var pathFn = require('path');
+var fs = require('hexo-fs');
+var moment = require('moment');
+var spawn = require('hexo-util/lib/spawn');
 
 
 //日期
@@ -54,25 +54,24 @@ var config = {
 
 //module.exports=
 var test =function(args){
-    debugger;
     var base = process.cwd();
     var deployDir = base +path.sep+'.deploy_git';
     var publicDir = base +path.sep+'_book';
+    var verbose = true;
 
-    function git(){
-        var len = arguments.length;
-        var args = new Array(len);
+  function git() {
+    var len = arguments.length;
+    var args = new Array(len);
 
-        for (var i = 0; i < len; i++) {
-            args[i] = arguments[i];
-        }
-
-
-            return  spawn('git', args, {
-                cwd: deployDir,
-                stdio: 'inherit'
-            });
+    for (var i = 0; i < len; i++) {
+      args[i] = arguments[i];
     }
+
+    return spawn('git', args, {
+      cwd: deployDir,
+      verbose: verbose
+    });
+  }
 
     function push(repo) {
         /*
@@ -132,10 +131,10 @@ var test =function(args){
     }
 
     var setup = function(){
+        return fs.writeFile(pathFn.join(deployDir,'placeholder'),'').then(function(){
+        return git('add','-A');
         
-        return fsMkdir(deployDir).then(function(){
-            git('init');
-        });
+        }).then(function())
     
     }
     /* 开始返回处理 */
