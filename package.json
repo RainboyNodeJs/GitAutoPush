@@ -1,0 +1,11 @@
+{
+    "name":"gitAutoPush",
+    "version":"0.1.0",
+    "description":"auto push git,code by Rainboy",
+    "author":"Rainboy,Rainboylvx@gmail.com",
+    "dependencies": {
+        "cross-spawn":"~2.2.3",
+        "bluebird":"~3.3.5",
+        "hexo-fs":"~0.1.5"
+    }
+}
